@@ -22,6 +22,7 @@
           :current="content.length" 
           :max="STEAM_MAX_CHARS" 
         />
+        <AIAnalyzer :content="content" @update:content="content = $event" />
         <SteamGroupWidget />
       </div>
       <div class="preview-container">
@@ -44,6 +45,7 @@ import PreviewHeader from './components/preview/PreviewHeader.vue'
 import ReviewPreview from './components/preview/ReviewPreview.vue'
 import CopyNotification from './components/ui/CopyNotification.vue'
 import SteamGroupWidget from './components/ui/SteamGroupWidget.vue'
+import AIAnalyzer from './components/ui/AIAnalyzer.vue'
 import { STEAM_MAX_CHARS, STORAGE_KEY } from './constants/steam'
 import { createHistoryManager } from './utils/historyManager'
 

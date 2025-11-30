@@ -10,7 +10,7 @@
         </div>
       </div>
       <p class="copyright">
-        Сделано для 
+        Сделано 5h4dow для 
         <a href="https://steamcommunity.com/id/kassandr4_" target="_blank" rel="noopener">kassandr4_</a>
         <span class="heart">🤍</span>
       </p>
