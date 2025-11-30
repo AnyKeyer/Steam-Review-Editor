@@ -1,0 +1,73 @@
+:root {
+  /* Steam exact colors */
+  --bg-dark: #1b2838;
+  --bg-card: #16202d;
+  --bg-input: #1b2838;
+  --bg-hover: #2a475e;
+  --bg-button: #4c6b8a;
+  --bg-button-hover: #5c7b9a;
+  
+  /* Steam text colors */
+  --text-primary: #acb2b8;
+  --text-secondary: #8f98a0;
+  --text-light: #ffffff;
+  --text-link: #67c1f5;
+  
+  /* Steam accent colors */
+  --accent-blue: #67c1f5;
+  --accent-green: #5ba32b;
+  --accent-red: #c74a4a;
+  
+  --border-color: #2a475e;
+  --border-radius: 3px;
+  
+  /* Steam uses these fonts */
+  --font-family: "Motiva Sans", Arial, Helvetica, sans-serif;
+  
+  /* Preview specific - Steam review style */
+  --preview-bg: #1b2838;
+  --preview-text: #acb2b8;
+  --preview-heading: #ffffff;
+  --preview-link: #67c1f5;
+  --preview-spoiler-bg: #000000;
+  --preview-quote-bg: rgba(0, 0, 0, 0.3);
+  --preview-quote-border: #67c1f5;
+  --preview-code-bg: #0e1621;
+  --preview-hr: #2a475e;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-hover);
+}
+
+::selection {
+  background: var(--accent-blue);
+  color: var(--text-light);
+}
