@@ -59,7 +59,8 @@
     </div>
 
     <!-- Results -->
-    <div v-if="result || error" class="result-container">
+    <div v-if="errors.length > 0 || noErrors || error || successMessage" class="result-container">
+      <!-- Error state -->
       <div v-if="error" class="result error">
         <div class="result-header">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -71,22 +72,90 @@
         </div>
         <p>{{ error }}</p>
       </div>
-      <div v-else class="result success">
+
+      <!-- Success message (for stylize) -->
+      <div v-else-if="successMessage" class="result success">
         <div class="result-header">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 11l3 3L22 4"></path>
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
-          <span>Результат анализа</span>
+          <span>Готово</span>
         </div>
-        <div class="result-content" v-html="formattedResult"></div>
+        <p>{{ successMessage }}</p>
+      </div>
+
+      <!-- No errors found -->
+      <div v-else-if="noErrors" class="result success">
+        <div class="result-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>Отлично!</span>
+        </div>
+        <p>Ошибок не найдено. Текст написан грамотно!</p>
+      </div>
+
+      <!-- Interactive errors list -->
+      <div v-else-if="errors.length > 0" class="errors-list">
+        <div class="errors-header">
+          <span class="errors-count">Найдено ошибок: {{ errors.length }}</span>
+          <button 
+            v-if="errors.length > 0" 
+            class="fix-all-btn"
+            @click="fixAllErrors"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Исправить все
+          </button>
+        </div>
+        
+        <div 
+          v-for="(err, index) in errors" 
+          :key="index"
+          class="error-item"
+          :class="{ fixed: err.fixed }"
+        >
+          <div class="error-type">{{ err.type }}</div>
+          <div class="error-content">
+            <div class="error-wrong">
+              <span class="label">Ошибка:</span>
+              <span class="wrong-text">{{ err.wrong }}</span>
+            </div>
+            <div class="error-arrow">→</div>
+            <div class="error-correct">
+              <span class="label">Исправить на:</span>
+              <span class="correct-text">{{ err.correct }}</span>
+            </div>
+          </div>
+          <div v-if="err.hint" class="error-hint">{{ err.hint }}</div>
+          <button 
+            v-if="!err.fixed"
+            class="fix-btn"
+            @click="fixError(index)"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Исправить
+          </button>
+          <div v-else class="fixed-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Исправлено
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { analyzeText, stylizeText } from '@/utils/geminiAnalyzer'
 
 const props = defineProps({
@@ -100,26 +169,53 @@ const emit = defineEmits(['update:content'])
 
 const isAnalyzing = ref(false)
 const isStylizing = ref(false)
-const result = ref('')
+const errors = ref([])
+const noErrors = ref(false)
 const error = ref('')
+const successMessage = ref('')
 
-const formattedResult = computed(() => {
-  if (!result.value) return ''
-  return result.value
-    .replace(/\n/g, '<br>')
-    .replace(/•/g, '<span class="bullet">•</span>')
-    .replace(/✓/g, '<span class="check">✓</span>')
-    .replace(/"([^"]+)"/g, '<span class="quote">"$1"</span>')
-    .replace(/→/g, '<span class="arrow">→</span>')
-})
+// Clean JSON from markdown code blocks
+const cleanJsonResponse = (text) => {
+  // Remove ```json ... ``` or ``` ... ```
+  let cleaned = text.trim()
+  if (cleaned.startsWith('```json')) {
+    cleaned = cleaned.slice(7)
+  } else if (cleaned.startsWith('```')) {
+    cleaned = cleaned.slice(3)
+  }
+  if (cleaned.endsWith('```')) {
+    cleaned = cleaned.slice(0, -3)
+  }
+  return cleaned.trim()
+}
 
 const runAnalysis = async () => {
   isAnalyzing.value = true
   error.value = ''
-  result.value = ''
+  errors.value = []
+  noErrors.value = false
+  successMessage.value = ''
 
   try {
-    result.value = await analyzeText(props.content)
+    const result = await analyzeText(props.content)
+    
+    // Clean and parse JSON response
+    try {
+      const cleanedResult = cleanJsonResponse(result)
+      const parsed = JSON.parse(cleanedResult)
+      
+      if (parsed.noErrors) {
+        noErrors.value = true
+      } else if (Array.isArray(parsed)) {
+        errors.value = parsed.map(e => ({ ...e, fixed: false }))
+      } else {
+        error.value = 'Неожиданный формат ответа'
+      }
+    } catch (parseError) {
+      // Fallback: if not JSON, show as plain text error
+      console.error('Parse error:', parseError, 'Raw result:', result)
+      error.value = 'Не удалось разобрать ответ ИИ. Попробуйте ещё раз.'
+    }
   } catch (e) {
     error.value = e.message
   } finally {
@@ -130,17 +226,41 @@ const runAnalysis = async () => {
 const runStylize = async () => {
   isStylizing.value = true
   error.value = ''
-  result.value = ''
+  errors.value = []
+  noErrors.value = false
+  successMessage.value = ''
 
   try {
     const stylizedText = await stylizeText(props.content)
     emit('update:content', stylizedText)
-    result.value = '✓ Текст успешно стилизован! Теги добавлены.'
+    successMessage.value = 'Текст успешно стилизован! BBCode теги добавлены.'
   } catch (e) {
     error.value = e.message
   } finally {
     isStylizing.value = false
   }
+}
+
+const fixError = (index) => {
+  const err = errors.value[index]
+  if (err.fixed) return
+  
+  const newContent = props.content.replace(err.wrong, err.correct)
+  emit('update:content', newContent)
+  errors.value[index].fixed = true
+}
+
+const fixAllErrors = () => {
+  let newContent = props.content
+  
+  errors.value.forEach((err, index) => {
+    if (!err.fixed) {
+      newContent = newContent.replace(err.wrong, err.correct)
+      errors.value[index].fixed = true
+    }
+  })
+  
+  emit('update:content', newContent)
 }
 </script>
 
@@ -300,9 +420,7 @@ const runStylize = async () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
   font-weight: 500;
 }
 
@@ -319,30 +437,175 @@ const runStylize = async () => {
   color: #4ade80;
 }
 
-.result-content {
-  color: var(--text-primary);
+/* Errors List */
+.errors-list {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
 }
 
-.result-content :deep(.bullet) {
-  color: #8b5cf6;
-  font-weight: bold;
+.errors-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: rgba(239, 68, 68, 0.1);
+  border-bottom: 1px solid var(--border-color);
 }
 
-.result-content :deep(.check) {
+.errors-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fca5a5;
+}
+
+.fix-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border: none;
+  border-radius: var(--border-radius);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.fix-all-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+}
+
+.fix-all-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.error-item {
+  padding: 14px;
+  border-bottom: 1px solid var(--border-color);
+  transition: all var(--transition-fast);
+}
+
+.error-item:last-child {
+  border-bottom: none;
+}
+
+.error-item.fixed {
+  opacity: 0.5;
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.error-type {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(139, 92, 246, 0.2);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #a78bfa;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.error-wrong,
+.error-correct {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wrong-text {
+  padding: 6px 10px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 4px;
+  color: #fca5a5;
+  font-size: 13px;
+  text-decoration: line-through;
+}
+
+.correct-text {
+  padding: 6px 10px;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 4px;
+  color: #86efac;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.error-arrow {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+.error-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.fix-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid rgba(34, 197, 94, 0.5);
+  border-radius: var(--border-radius);
+  color: #86efac;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.fix-btn:hover {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: #22c55e;
+}
+
+.fix-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.fixed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: var(--border-radius);
   color: #4ade80;
-  font-weight: bold;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.result-content :deep(.quote) {
-  background: rgba(139, 92, 246, 0.15);
-  padding: 1px 4px;
-  border-radius: 3px;
-  color: #c4b5fd;
-}
-
-.result-content :deep(.arrow) {
-  color: #67c1f5;
-  margin: 0 4px;
+.fixed-badge svg {
+  width: 14px;
+  height: 14px;
 }
 
 @media (max-width: 768px) {
@@ -354,8 +617,13 @@ const runStylize = async () => {
     display: none;
   }
   
-  .powered-by {
-    display: none;
+  .error-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .error-arrow {
+    transform: rotate(90deg);
   }
 }
 </style>
