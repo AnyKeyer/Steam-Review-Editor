@@ -116,35 +116,65 @@ const copyToClipboard = async () => {
 <style scoped>
 .app {
   min-height: 100vh;
-  background: var(--bg-dark);
+  background: linear-gradient(180deg, #171d25 0%, #1b2838 100%);
 }
 
 .main-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  padding: 20px;
-  max-width: 1600px;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1700px;
   margin: 0 auto;
 }
 
 .editor-container,
 .preview-container {
-  background: var(--bg-card);
-  border-radius: 8px;
-  padding: 16px;
+  background: linear-gradient(145deg, #1e2a38 0%, #1b2838 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 140px);
+  min-height: calc(100vh - 120px);
+  box-shadow: var(--shadow-md);
+  transition: box-shadow var(--transition-normal);
 }
 
-@media (max-width: 1024px) {
+.editor-container:hover,
+.preview-container:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.editor-container {
+  border-top: 3px solid var(--accent-blue);
+}
+
+.preview-container {
+  border-top: 3px solid var(--accent-green);
+}
+
+@media (max-width: 1200px) {
   .main-content {
     grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 16px;
   }
   
   .editor-container,
   .preview-container {
+    min-height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 12px;
+  }
+  
+  .editor-container,
+  .preview-container {
+    padding: 14px;
     min-height: 400px;
   }
 }

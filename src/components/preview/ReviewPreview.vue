@@ -2,8 +2,14 @@
   <div class="preview steam-theme">
     <div v-if="content" class="preview-content" v-html="renderedContent"></div>
     <div v-else class="preview-placeholder">
-      <p>Здесь будет отображаться предпросмотр вашего обзора</p>
-      <p class="hint">Начните печатать в редакторе слева</p>
+      <div class="placeholder-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
+          <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z"></path>
+        </svg>
+      </div>
+      <p class="placeholder-title">Предпросмотр обзора</p>
+      <p class="placeholder-hint">Начните печатать в редакторе, и здесь появится результат</p>
     </div>
   </div>
 </template>
@@ -28,10 +34,10 @@ const renderedContent = computed(() => {
 .preview {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
-  background: #1b2838;
-  border: 1px solid #2a475e;
-  border-radius: 3px;
+  padding: 20px;
+  background: linear-gradient(180deg, #1b2838 0%, #171d25 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
   min-height: 300px;
   color: #acb2b8;
   font-family: "Motiva Sans", Arial, Helvetica, sans-serif;
@@ -39,9 +45,21 @@ const renderedContent = computed(() => {
 }
 
 .preview-content {
-  line-height: 1.6;
+  line-height: 1.7;
   word-wrap: break-word;
-  color: #acb2b8;
+  color: #c6d4df;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .preview-placeholder {
@@ -50,18 +68,43 @@ const renderedContent = computed(() => {
   align-items: center;
   justify-content: center;
   height: 100%;
-  min-height: 200px;
+  min-height: 250px;
   color: var(--text-secondary);
   text-align: center;
+  padding: 40px 20px;
 }
 
-.preview-placeholder p {
-  margin: 4px 0;
+.placeholder-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(103, 193, 245, 0.1);
+  border: 1px solid rgba(103, 193, 245, 0.2);
+  border-radius: 50%;
+  margin-bottom: 20px;
 }
 
-.preview-placeholder .hint {
-  font-size: 13px;
+.placeholder-icon svg {
+  width: 28px;
+  height: 28px;
+  color: #67c1f5;
   opacity: 0.7;
+}
+
+.placeholder-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.placeholder-hint {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  opacity: 0.8;
 }
 
 /* Steam exact styling for parsed BBCode */

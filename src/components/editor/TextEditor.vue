@@ -120,31 +120,43 @@ defineExpose({ applyFormat })
   flex: 1;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .editor {
   flex: 1;
   width: 100%;
-  min-height: 300px;
-  padding: 16px;
+  min-height: 350px;
+  padding: 18px;
   background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
   color: var(--text-primary);
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.7;
   resize: vertical;
-  transition: border-color 0.2s ease;
+  transition: all var(--transition-normal);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.editor:hover {
+  border-color: #3d5a80;
 }
 
 .editor:focus {
   outline: none;
   border-color: var(--accent-blue);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(103, 193, 245, 0.15);
 }
 
 .editor::placeholder {
   color: var(--text-secondary);
-  opacity: 0.7;
+  opacity: 0.6;
+  font-family: var(--font-family);
+}
+
+.editor::selection {
+  background: rgba(103, 193, 245, 0.3);
 }
 </style>
