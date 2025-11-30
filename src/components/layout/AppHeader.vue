@@ -5,7 +5,10 @@
         <span class="logo-icon">🎮</span>
         <h1>Steam Review Editor</h1>
       </div>
-      <p class="copyright">© 5h4dow</p>
+      <p class="copyright">
+        Сделано по спецзаказу для 
+        <a href="https://steamcommunity.com/id/kassandr4_" target="_blank" rel="noopener">kassandr4_</a>
+      </p>
     </div>
   </header>
 </template>
@@ -44,6 +47,16 @@
 .copyright {
   color: var(--text-secondary);
   font-size: 14px;
+}
+
+.copyright a {
+  color: var(--text-link);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.copyright a:hover {
+  color: var(--text-light);
 }
 
 @media (max-width: 768px) {
