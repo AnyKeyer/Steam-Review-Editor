@@ -6,8 +6,9 @@
         <h1>Steam Review Editor</h1>
       </div>
       <p class="copyright">
-        Сделано по спецзаказу для 
+        Сделано для 
         <a href="https://steamcommunity.com/id/kassandr4_" target="_blank" rel="noopener">kassandr4_</a>
+        <span class="heart">🤍</span>
       </p>
     </div>
   </header>
