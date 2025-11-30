@@ -9,18 +9,34 @@
         <span class="subtitle">Как будет выглядеть в Steam</span>
       </div>
     </div>
-    <button class="copy-btn" @click="$emit('copy')" title="Копировать текст с тегами">
-      <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-      </svg>
-      <span>Копировать</span>
-    </button>
+    <div class="actions">
+      <button v-if="showSave" class="save-btn" @click="$emit('save')" title="Сохранить обзор (Ctrl+S)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+        <span>Сохранить</span>
+      </button>
+      <button class="copy-btn" @click="$emit('copy')" title="Копировать текст с тегами">
+        <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span>Копировать</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup>
-defineEmits(['copy'])
+defineProps({
+  showSave: {
+    type: Boolean,
+    default: false
+  }
+})
+defineEmits(['copy', 'save'])
 </script>
 
 <style scoped>
@@ -71,6 +87,41 @@ defineEmits(['copy'])
   color: var(--text-secondary);
 }
 
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.save-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--accent-blue), #2563eb);
+  border: none;
+  border-radius: var(--border-radius-lg);
+  color: var(--text-light);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.save-btn:active {
+  transform: translateY(0);
+}
+
+.save-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 .copy-btn {
   display: flex;
   align-items: center;
@@ -108,7 +159,13 @@ defineEmits(['copy'])
     align-items: flex-start;
   }
   
-  .copy-btn {
+  .actions {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .copy-btn,
+  .save-btn {
     width: 100%;
     justify-content: center;
   }
