@@ -3,7 +3,7 @@
     <a :href="groupUrl" target="_blank" rel="noopener" class="widget-link">
       <div class="widget-header">
         <span class="steam-icon">🎮</span>
-        <span class="widget-title">Steam Группа</span>
+        <span class="widget-title">Steam Куратор</span>
       </div>
       <div class="widget-content">
         <div class="group-avatar">
@@ -15,7 +15,7 @@
         </div>
       </div>
       <div class="widget-footer">
-        <span class="join-text">Присоединиться →</span>
+        <span class="join-text">Подписаться →</span>
       </div>
     </a>
   </div>
@@ -25,7 +25,7 @@
 defineProps({
   groupUrl: {
     type: String,
-    default: 'https://steamcommunity.com/groups/anatomyoffear'
+    default: 'https://store.steampowered.com/curator/45695689/'
   },
   groupName: {
     type: String,
@@ -37,7 +37,7 @@ defineProps({
   },
   avatarUrl: {
     type: String,
-    default: 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'
+    default: 'https://avatars.akamai.steamstatic.com/1d3c2469a8bdd534f44028f61ef29d63898e500f_full.jpg'
   }
 })
 </script>
