@@ -23,6 +23,7 @@
           :max="STEAM_MAX_CHARS" 
         />
         <AIAnalyzer :content="content" @update:content="content = $event" />
+        <SignatureSettings ref="signatureRef" />
         <SteamGroupWidget />
       </div>
       <div class="preview-container">
@@ -46,6 +47,7 @@ import ReviewPreview from './components/preview/ReviewPreview.vue'
 import CopyNotification from './components/ui/CopyNotification.vue'
 import SteamGroupWidget from './components/ui/SteamGroupWidget.vue'
 import AIAnalyzer from './components/ui/AIAnalyzer.vue'
+import SignatureSettings from './components/ui/SignatureSettings.vue'
 import { STEAM_MAX_CHARS, STORAGE_KEY } from './constants/steam'
 import { createHistoryManager } from './utils/historyManager'
 
@@ -96,6 +98,7 @@ const handleKeydown = (e) => {
   }
 }
 const editorRef = ref(null)
+const signatureRef = ref(null)
 const showCopyNotification = ref(false)
 
 const applyFormat = (format) => {
@@ -104,7 +107,12 @@ const applyFormat = (format) => {
 
 const copyToClipboard = async () => {
   try {
-    await navigator.clipboard.writeText(content.value)
+    let textToCopy = content.value
+    const signature = signatureRef.value?.getSignature()
+    if (signature) {
+      textToCopy = content.value + '\n\n' + signature
+    }
+    await navigator.clipboard.writeText(textToCopy)
     showCopyNotification.value = true
     setTimeout(() => {
       showCopyNotification.value = false
