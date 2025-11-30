@@ -21,6 +21,7 @@
 [/list]"
       @input="handleInput"
       @select="handleSelect"
+      @keydown="$emit('keydown', $event)"
     ></textarea>
   </div>
 </template>
@@ -40,7 +41,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'keydown'])
 
 const textareaRef = ref(null)
 

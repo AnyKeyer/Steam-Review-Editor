@@ -3,11 +3,20 @@
     <AppHeader />
     <main class="main-content">
       <div class="editor-container">
+        <HistoryControls 
+          :canUndo="historyManager.canUndo()"
+          :canRedo="historyManager.canRedo()"
+          :historyCount="historyManager.getHistoryCount()"
+          :redoCount="historyManager.getRedoCount()"
+          @undo="handleUndo"
+          @redo="handleRedo"
+        />
         <EditorToolbar @format="applyFormat" />
         <TextEditor 
           ref="editorRef"
           v-model="content" 
           :maxLength="STEAM_MAX_CHARS"
+          @keydown="handleKeydown"
         />
         <CharacterCounter 
           :current="content.length" 
@@ -26,6 +35,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import AppHeader from './components/layout/AppHeader.vue'
+import HistoryControls from './components/editor/HistoryControls.vue'
 import EditorToolbar from './components/editor/EditorToolbar.vue'
 import TextEditor from './components/editor/TextEditor.vue'
 import CharacterCounter from './components/editor/CharacterCounter.vue'
@@ -33,8 +43,10 @@ import PreviewHeader from './components/preview/PreviewHeader.vue'
 import ReviewPreview from './components/preview/ReviewPreview.vue'
 import CopyNotification from './components/ui/CopyNotification.vue'
 import { STEAM_MAX_CHARS, STORAGE_KEY } from './constants/steam'
+import { createHistoryManager } from './utils/historyManager'
 
 const content = ref('')
+const historyManager = createHistoryManager()
 
 // Load saved content on mount
 onMounted(() => {
@@ -42,12 +54,43 @@ onMounted(() => {
   if (saved) {
     content.value = saved
   }
+  historyManager.init(content.value)
 })
 
-// Auto-save to localStorage
+// Auto-save to localStorage and history
 watch(content, (newValue) => {
   localStorage.setItem(STORAGE_KEY, newValue)
+  historyManager.push(newValue)
 })
+
+// Undo handler
+const handleUndo = () => {
+  const previousState = historyManager.undo(content.value)
+  if (previousState !== null) {
+    content.value = previousState
+  }
+}
+
+// Redo handler
+const handleRedo = () => {
+  const nextState = historyManager.redo()
+  if (nextState !== null) {
+    content.value = nextState
+  }
+}
+
+// Keyboard shortcuts (Ctrl+Z / Ctrl+Y)
+const handleKeydown = (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 'z' && !e.shiftKey) {
+      e.preventDefault()
+      handleUndo()
+    } else if (e.key === 'y' || (e.key === 'z' && e.shiftKey)) {
+      e.preventDefault()
+      handleRedo()
+    }
+  }
+}
 const editorRef = ref(null)
 const showCopyNotification = ref(false)
 
