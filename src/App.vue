@@ -22,6 +22,7 @@
           :current="content.length" 
           :max="STEAM_MAX_CHARS" 
         />
+        <SteamGroupWidget />
       </div>
       <div class="preview-container">
         <PreviewHeader @copy="copyToClipboard" />
@@ -42,6 +43,7 @@ import CharacterCounter from './components/editor/CharacterCounter.vue'
 import PreviewHeader from './components/preview/PreviewHeader.vue'
 import ReviewPreview from './components/preview/ReviewPreview.vue'
 import CopyNotification from './components/ui/CopyNotification.vue'
+import SteamGroupWidget from './components/ui/SteamGroupWidget.vue'
 import { STEAM_MAX_CHARS, STORAGE_KEY } from './constants/steam'
 import { createHistoryManager } from './utils/historyManager'
 
