@@ -10,8 +10,8 @@
           </svg>
         </div>
         <div class="header-text">
-          <span class="title">ИИ Помощник</span>
-          <span class="subtitle">Экспериментальная функция</span>
+          <span class="title">{{ t.ai?.title || 'ИИ Помощник' }}</span>
+          <span class="subtitle">{{ t.ai?.subtitle || 'Экспериментальная функция' }}</span>
         </div>
       </div>
     </div>
@@ -23,17 +23,17 @@
         :class="{ loading: isAnalyzing }"
         :disabled="isAnalyzing || isStylizing || !content.trim()"
         @click="runAnalysis"
-        title="Проверит орфографию, грамматику и пунктуацию"
+        :title="t.ai?.analyzeHint || 'Проверит орфографию, грамматику и пунктуацию'"
       >
         <template v-if="isAnalyzing">
           <span class="spinner"></span>
-          <span>Анализирую...</span>
+          <span>{{ t.editor.ai.analyzing }}</span>
         </template>
         <template v-else>
           <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
           </svg>
-          <span>Проверить</span>
+          <span>{{ t.editor.ai.analyze }}</span>
         </template>
       </button>
       
@@ -42,18 +42,18 @@
         :class="{ loading: isStylizing }"
         :disabled="isAnalyzing || isStylizing || !content.trim()"
         @click="runStylize"
-        title="Автоматически добавит заголовки, выделения и списки (текст не изменится)"
+        :title="t.ai?.stylizeHint || 'Автоматически добавит заголовки, выделения и списки'"
       >
         <template v-if="isStylizing">
           <span class="spinner"></span>
-          <span>Стилизую...</span>
+          <span>{{ t.editor.ai.stylizing }}</span>
         </template>
         <template v-else>
           <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 20h9"></path>
             <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
           </svg>
-          <span>Стилизовать</span>
+          <span>{{ t.editor.ai.stylize }}</span>
         </template>
       </button>
     </div>
@@ -68,7 +68,7 @@
             <line x1="15" y1="9" x2="9" y2="15"></line>
             <line x1="9" y1="9" x2="15" y2="15"></line>
           </svg>
-          <span>Ошибка</span>
+          <span>{{ t.ai?.error || 'Ошибка' }}</span>
         </div>
         <p>{{ error }}</p>
       </div>
@@ -80,7 +80,7 @@
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
-          <span>Готово</span>
+          <span>{{ t.ai?.done || 'Готово' }}</span>
         </div>
         <p>{{ successMessage }}</p>
       </div>
@@ -92,15 +92,15 @@
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
-          <span>Отлично!</span>
+          <span>{{ t.ai?.great || 'Отлично!' }}</span>
         </div>
-        <p>Ошибок не найдено. Текст написан грамотно!</p>
+        <p>{{ t.editor.ai.noErrors }}</p>
       </div>
 
       <!-- Interactive errors list -->
       <div v-else-if="errors.length > 0" class="errors-list">
         <div class="errors-header">
-          <span class="errors-count">Найдено ошибок: {{ errors.length }}</span>
+          <span class="errors-count">{{ t.ai?.foundErrors || 'Найдено ошибок' }}: {{ errors.length }}</span>
           <button 
             v-if="errors.length > 0" 
             class="fix-all-btn"
@@ -109,7 +109,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            Исправить все
+            {{ t.editor.ai.fixAll }}
           </button>
         </div>
         
@@ -122,12 +122,12 @@
           <div class="error-type">{{ err.type }}</div>
           <div class="error-content">
             <div class="error-wrong">
-              <span class="label">Ошибка:</span>
+              <span class="label">{{ t.ai?.errorLabel || 'Ошибка' }}:</span>
               <span class="wrong-text">{{ err.wrong }}</span>
             </div>
             <div class="error-arrow">→</div>
             <div class="error-correct">
-              <span class="label">Исправить на:</span>
+              <span class="label">{{ t.ai?.fixTo || 'Исправить на' }}:</span>
               <span class="correct-text">{{ err.correct }}</span>
             </div>
           </div>
@@ -140,13 +140,13 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            Исправить
+            {{ t.editor.ai.fix }}
           </button>
           <div v-else class="fixed-badge">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            Исправлено
+            {{ t.ai?.fixed || 'Исправлено' }}
           </div>
         </div>
       </div>
@@ -157,6 +157,9 @@
 <script setup>
 import { ref } from 'vue'
 import { analyzeText, stylizeText } from '@/utils/geminiAnalyzer'
+import { useI18n } from '../../i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   content: {

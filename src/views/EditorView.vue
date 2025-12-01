@@ -36,23 +36,23 @@
     <Teleport to="body">
       <div v-if="showSaveModal" class="modal-overlay" @click="showSaveModal = false">
         <div class="modal save-modal" @click.stop>
-          <h3>{{ isEditing ? 'Сохранить изменения' : 'Сохранить обзор' }}</h3>
+          <h3>{{ isEditing ? t.editor.saveChanges : t.editor.saveReview }}</h3>
           <input 
             v-model="reviewName"
             type="text"
-            placeholder="Название обзора..."
+            :placeholder="t.editor.reviewNamePlaceholder"
             class="name-input"
             @keydown.enter="confirmSave"
             ref="nameInputRef"
           />
           <div class="modal-actions">
-            <button class="modal-btn cancel" @click="showSaveModal = false">Отмена</button>
+            <button class="modal-btn cancel" @click="showSaveModal = false">{{ t.editor.cancel }}</button>
             <button 
               class="modal-btn confirm" 
               :disabled="!reviewName.trim()"
               @click="confirmSave"
             >
-              Сохранить
+              {{ t.editor.save }}
             </button>
           </div>
         </div>
@@ -77,7 +77,9 @@ import SignatureSettings from '../components/ui/SignatureSettings.vue'
 import { STEAM_MAX_CHARS, STORAGE_KEY } from '../constants/steam'
 import { createHistoryManager } from '../utils/historyManager'
 import { getReviews, getReviewById, saveReview, updateReview } from '../utils/reviewStorage'
+import { useI18n } from '../i18n'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 

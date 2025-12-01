@@ -6,7 +6,7 @@
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
-        <span class="title">Подпись</span>
+        <span class="title">{{ t.editor.signature.title }}</span>
         <span v-if="signature && !isOpen" class="signature-preview">{{ truncatedSignature }}</span>
       </div>
       <svg 
@@ -22,10 +22,10 @@
     </div>
     
     <div v-if="isOpen" class="signature-content">
-      <p class="hint">Эта подпись будет добавляться в конец при копировании</p>
+      <p class="hint">{{ t.editor.signature.hint }}</p>
       <textarea 
         v-model="signature"
-        placeholder="Например:&#10;&#10;[hr]&#10;[i]Понравился обзор? Подпишись![/i]&#10;[url=https://store.steampowered.com/curator/45695689/]Наш куратор[/url]"
+        :placeholder="t.editor.signature.placeholder"
         class="signature-input"
         rows="4"
         @input="saveSignature"
@@ -38,10 +38,10 @@
             @change="saveEnabled"
           />
           <span class="toggle-switch"></span>
-          <span class="toggle-text">Добавлять при копировании</span>
+          <span class="toggle-text">{{ t.editor.signature.toggle }}</span>
         </label>
         <button v-if="signature" class="clear-btn" @click="clearSignature">
-          Очистить
+          {{ t.editor.signature.clear }}
         </button>
       </div>
     </div>
@@ -50,6 +50,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from '../../i18n'
+
+const { t } = useI18n()
 
 const SIGNATURE_KEY = 'steam_review_signature'
 const SIGNATURE_ENABLED_KEY = 'steam_review_signature_enabled'

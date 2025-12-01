@@ -131,23 +131,48 @@ async function handleGemini(request, env) {
       // Select prompt based on action
       const prompt = action === 'stylize' ? STYLIZE_PROMPT : ANALYSIS_PROMPT
 
-      // Call Gemini API
-      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{ text: prompt + text }]
-          }],
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 2048,
-          }
+      // Call Gemini API with retry on 429
+      let response
+      let retries = 0
+      const maxRetries = 2
+      
+      while (retries <= maxRetries) {
+        response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: prompt + text }]
+            }],
+            generationConfig: {
+              temperature: 0.3,
+              maxOutputTokens: 2048,
+            }
+          })
         })
-      })
+        
+        // If rate limited, wait and retry
+        if (response.status === 429 && retries < maxRetries) {
+          retries++
+          await new Promise(resolve => setTimeout(resolve, 5000 * retries)) // 5s, 10s
+          continue
+        }
+        break
+      }
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}))
+        
+        // User-friendly message for rate limit
+        if (response.status === 429) {
+          return new Response(JSON.stringify({ 
+            error: 'Слишком много запросов. Подождите минуту и попробуйте снова.' 
+          }), {
+            status: 429,
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          })
+        }
+        
         return new Response(JSON.stringify({ 
           error: error.error?.message || `Ошибка Gemini API: ${response.status}` 
         }), {

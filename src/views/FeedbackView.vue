@@ -1,46 +1,46 @@
 <template>
   <div class="feedback-page">
     <div class="page-header">
-      <h2>Обратная связь</h2>
-      <p class="subtitle">Сообщите о проблеме, предложите идею или оставьте отзыв</p>
+      <h2>{{ t.feedback.title }}</h2>
+      <p class="subtitle">{{ t.feedback.subtitle }}</p>
     </div>
 
     <div class="feedback-form-container">
       <form @submit.prevent="submitForm" class="feedback-form">
         <div class="form-group">
-          <label>Тип сообщения</label>
+          <label>{{ t.feedback.form.messageType || 'Тип сообщения' }}</label>
           <div class="type-buttons">
             <button 
               type="button"
-              v-for="t in types" 
-              :key="t.value"
+              v-for="tp in types" 
+              :key="tp.value"
               class="type-btn"
-              :class="{ active: type === t.value, [t.value]: true }"
-              @click="type = t.value"
+              :class="{ active: type === tp.value, [tp.value]: true }"
+              @click="type = tp.value"
             >
-              <span class="type-icon">{{ t.icon }}</span>
-              <span>{{ t.label }}</span>
+              <span class="type-icon">{{ tp.icon }}</span>
+              <span>{{ tp.label }}</span>
             </button>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="name">Ваше имя <span class="optional">(необязательно)</span></label>
+          <label for="name">{{ t.feedback.form.name }} <span class="optional">{{ t.feedback.form.nameOptional }}</span></label>
           <input 
             id="name"
             v-model="name"
             type="text"
-            placeholder="Аноним"
+            :placeholder="t.feedback.form.namePlaceholder"
             class="form-input"
           />
         </div>
 
         <div class="form-group">
-          <label for="message">Сообщение <span class="required">*</span></label>
+          <label for="message">{{ t.feedback.form.message }} <span class="required">{{ t.feedback.form.messageRequired }}</span></label>
           <textarea 
             id="message"
             v-model="message"
-            placeholder="Опишите вашу проблему, идею или оставьте отзыв..."
+            :placeholder="t.feedback.form.messagePlaceholder"
             class="form-textarea"
             rows="6"
             required
@@ -55,14 +55,14 @@
         >
           <template v-if="isSubmitting">
             <span class="spinner"></span>
-            Отправка...
+            {{ t.feedback.form.submitting }}
           </template>
           <template v-else>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="22" y1="2" x2="11" y2="13"></line>
               <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
-            Отправить
+            {{ t.feedback.form.submit }}
           </template>
         </button>
       </form>
@@ -70,9 +70,9 @@
       <!-- Success message -->
       <div v-if="showSuccess" class="success-message">
         <div class="success-icon">✅</div>
-        <h3>Спасибо за ваше сообщение!</h3>
-        <p>Мы обязательно его рассмотрим</p>
-        <button class="new-btn" @click="resetForm">Отправить ещё</button>
+        <h3>{{ t.feedback.success.title }}</h3>
+        <p>{{ t.feedback.success.subtitle }}</p>
+        <button class="new-btn" @click="resetForm">{{ t.feedback.success.another }}</button>
       </div>
 
       <!-- Error message -->
@@ -85,21 +85,24 @@
     <!-- Hidden admin link -->
     <div class="admin-hint" @click="adminClickCount++" :class="{ active: adminClickCount >= 5 }">
       <router-link v-if="adminClickCount >= 5" to="/admin" class="admin-link">
-        🔐 Админ
+        🔐 {{ t.admin?.login?.title || 'Админ' }}
       </router-link>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { submitFeedback } from '../utils/feedbackApi'
+import { useI18n } from '../i18n'
 
-const types = [
-  { value: 'bug', label: 'Баг', icon: '🐛' },
-  { value: 'suggestion', label: 'Предложение', icon: '💡' },
-  { value: 'review', label: 'Отзыв', icon: '⭐' }
-]
+const { t } = useI18n()
+
+const types = computed(() => [
+  { value: 'bug', label: t.value.feedback.types.bug, icon: '🐛' },
+  { value: 'suggestion', label: t.value.feedback.types.suggestion, icon: '💡' },
+  { value: 'review', label: t.value.feedback.types.review, icon: '⭐' }
+])
 
 const type = ref('suggestion')
 const name = ref('')

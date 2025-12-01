@@ -1,13 +1,13 @@
 <template>
   <div class="reviews-page">
     <div class="page-header">
-      <h2>Мои обзоры</h2>
+      <h2>{{ t.reviews.title }}</h2>
       <router-link to="/editor" class="new-review-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
-        Новый обзор
+        {{ t.reviews.newReview }}
       </router-link>
     </div>
 
@@ -32,7 +32,7 @@
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
               </svg>
-              {{ review.content.length }} символов
+              {{ review.content.length }} {{ t.reviews.chars }}
             </span>
           </div>
         </div>
@@ -47,14 +47,14 @@
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
-            Редактировать
+            {{ t.reviews.edit }}
           </router-link>
           <button class="action-btn copy-btn" @click="copyReview(review)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
             </svg>
-            Копировать
+            {{ t.reviews.copy }}
           </button>
           <button class="action-btn delete-btn" @click="confirmDelete(review)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -76,14 +76,14 @@
           <polyline points="10 9 9 9 8 9"></polyline>
         </svg>
       </div>
-      <h3>Нет сохранённых обзоров</h3>
-      <p>Создайте свой первый обзор для Steam</p>
+      <h3>{{ t.reviews.empty.title }}</h3>
+      <p>{{ t.reviews.empty.subtitle }}</p>
       <router-link to="/editor" class="create-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
-        Создать обзор
+        {{ t.reviews.empty.create }}
       </router-link>
     </div>
 
@@ -91,11 +91,11 @@
     <Teleport to="body">
       <div v-if="deleteTarget" class="modal-overlay" @click="deleteTarget = null">
         <div class="modal" @click.stop>
-          <h3>Удалить обзор?</h3>
-          <p>Вы уверены, что хотите удалить "{{ deleteTarget.name }}"?<br>Это действие нельзя отменить.</p>
+          <h3>{{ t.reviews.deleteModal.title }}</h3>
+          <p>{{ t.reviews.deleteModal.confirm }} "{{ deleteTarget.name }}"?<br>{{ t.reviews.deleteModal.warning }}</p>
           <div class="modal-actions">
-            <button class="modal-btn cancel" @click="deleteTarget = null">Отмена</button>
-            <button class="modal-btn confirm" @click="doDelete">Удалить</button>
+            <button class="modal-btn cancel" @click="deleteTarget = null">{{ t.reviews.deleteModal.cancel }}</button>
+            <button class="modal-btn confirm" @click="doDelete">{{ t.reviews.deleteModal.delete }}</button>
           </div>
         </div>
       </div>
@@ -109,6 +109,9 @@
 import { ref, computed, onMounted } from 'vue'
 import CopyNotification from '../components/ui/CopyNotification.vue'
 import { getReviews, deleteReview } from '../utils/reviewStorage'
+import { useI18n } from '../i18n'
+
+const { t, locale } = useI18n()
 
 const reviews = ref([])
 const deleteTarget = ref(null)

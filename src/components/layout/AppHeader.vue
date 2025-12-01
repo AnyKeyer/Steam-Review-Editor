@@ -7,7 +7,7 @@
             <span class="logo-icon">✍️</span>
           </div>
           <div class="logo-text">
-            <h1>Steam Review Editor</h1>
+            <h1>{{ t.appName }}</h1>
           </div>
         </router-link>
         
@@ -18,32 +18,42 @@
               <polyline points="17 21 17 13 7 13 7 21"></polyline>
               <polyline points="7 3 7 8 15 8"></polyline>
             </svg>
-            Мои обзоры
+            {{ t.nav.myReviews }}
           </router-link>
           <router-link to="/editor" class="nav-link" :class="{ active: $route.path.startsWith('/editor') }">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
-            Редактор
+            {{ t.nav.editor }}
           </router-link>
           <router-link to="/feedback" class="nav-link" :class="{ active: $route.path === '/feedback' }">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
-            Обратная связь
+            {{ t.nav.feedback }}
           </router-link>
         </nav>
       </div>
       
-      <p class="copyright">
-        Сделано 5h4dow для 
-        <a href="https://steamcommunity.com/id/kassandr4_" target="_blank" rel="noopener">kassandr4_</a>
-        <span class="heart">🤍</span>
-      </p>
+      <div class="header-right">
+        <LocaleSwitcher />
+        <p class="copyright">
+          {{ t.madeBy }} 
+          <a href="https://steamcommunity.com/id/kassandr4_" target="_blank" rel="noopener">kassandr4_</a>
+          <span class="heart">🤍</span>
+        </p>
+      </div>
     </div>
   </header>
 </template>
+
+<script setup>
+import { useI18n } from '../../i18n'
+import LocaleSwitcher from '../ui/LocaleSwitcher.vue'
+
+const { t } = useI18n()
+</script>
 
 <style scoped>
 .header {
@@ -141,6 +151,12 @@
 .nav-link.active {
   color: var(--accent-blue);
   background: rgba(59, 130, 246, 0.1);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .copyright {

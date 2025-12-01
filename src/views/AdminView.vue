@@ -3,27 +3,27 @@
     <!-- Login form -->
     <div v-if="!isAuthenticated" class="login-container">
       <div class="login-form">
-        <h2>🔐 Вход в админку</h2>
+        <h2>{{ t.admin.login.title }}</h2>
         <input 
           v-model="password"
           type="password"
-          placeholder="Пароль..."
+          :placeholder="t.admin.login.placeholder"
           class="password-input"
           @keydown.enter="login"
           autofocus
         />
         <button class="login-btn" @click="login" :disabled="!password || isLoading">
-          {{ isLoading ? 'Проверка...' : 'Войти' }}
+          {{ isLoading ? t.admin.login.checking : t.admin.login.button }}
         </button>
         <p v-if="loginError" class="login-error">{{ loginError }}</p>
-        <router-link to="/feedback" class="back-link">← Назад</router-link>
+        <router-link to="/feedback" class="back-link">{{ t.admin.login.back }}</router-link>
       </div>
     </div>
 
     <!-- Admin panel -->
     <div v-else class="admin-panel">
       <div class="admin-header">
-        <h2>Управление обратной связью</h2>
+        <h2>{{ t.admin.panel.title }}</h2>
         <div class="header-actions">
           <button class="refresh-btn" @click="loadFeedbacks" :disabled="isLoading">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="{ spinning: isLoading }">
@@ -31,26 +31,26 @@
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
             </svg>
           </button>
-          <button class="logout-btn" @click="logout">Выйти</button>
+          <button class="logout-btn" @click="logout">{{ t.admin.panel.logout }}</button>
         </div>
       </div>
 
       <div class="stats">
         <div class="stat-card">
           <span class="stat-value">{{ feedbacks.length }}</span>
-          <span class="stat-label">Всего</span>
+          <span class="stat-label">{{ t.admin.panel.total }}</span>
         </div>
         <div class="stat-card bug">
           <span class="stat-value">{{ feedbacks.filter(f => f.type === 'bug').length }}</span>
-          <span class="stat-label">🐛 Баги</span>
+          <span class="stat-label">🐛 {{ t.admin.panel.bugs }}</span>
         </div>
         <div class="stat-card suggestion">
           <span class="stat-value">{{ feedbacks.filter(f => f.type === 'suggestion').length }}</span>
-          <span class="stat-label">💡 Идеи</span>
+          <span class="stat-label">💡 {{ t.admin.panel.ideas }}</span>
         </div>
         <div class="stat-card review">
           <span class="stat-value">{{ feedbacks.filter(f => f.type === 'review').length }}</span>
-          <span class="stat-label">⭐ Отзывы</span>
+          <span class="stat-label">⭐ {{ t.admin.panel.reviews }}</span>
         </div>
       </div>
 
@@ -80,9 +80,9 @@
               @change="changeStatus(fb.id, $event.target.value)"
               class="status-select"
             >
-              <option value="new">🆕 Новое</option>
-              <option value="read">👀 Прочитано</option>
-              <option value="resolved">✅ Решено</option>
+              <option value="new">{{ t.admin.panel.status.new }}</option>
+              <option value="read">{{ t.admin.panel.status.read }}</option>
+              <option value="resolved">{{ t.admin.panel.status.resolved }}</option>
             </select>
             <button class="delete-btn" @click="confirmDelete(fb)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -95,7 +95,7 @@
       </div>
 
       <div v-else class="empty-state">
-        <p>Пока нет сообщений</p>
+        <p>{{ t.admin.panel.empty }}</p>
       </div>
     </div>
 
@@ -103,11 +103,11 @@
     <Teleport to="body">
       <div v-if="deleteTarget" class="modal-overlay" @click="deleteTarget = null">
         <div class="modal" @click.stop>
-          <h3>Удалить сообщение?</h3>
-          <p>От: {{ deleteTarget.name }}<br>{{ deleteTarget.message.slice(0, 100) }}...</p>
+          <h3>{{ t.admin.panel.deleteModal.title }}</h3>
+          <p>{{ t.admin.panel.deleteModal.from }} {{ deleteTarget.name }}<br>{{ deleteTarget.message.slice(0, 100) }}...</p>
           <div class="modal-actions">
-            <button class="modal-btn cancel" @click="deleteTarget = null">Отмена</button>
-            <button class="modal-btn confirm" @click="doDelete">Удалить</button>
+            <button class="modal-btn cancel" @click="deleteTarget = null">{{ t.admin.panel.deleteModal.cancel }}</button>
+            <button class="modal-btn confirm" @click="doDelete">{{ t.admin.panel.deleteModal.delete }}</button>
           </div>
         </div>
       </div>
@@ -116,8 +116,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getFeedbacks, deleteFeedback, updateFeedbackStatus } from '../utils/feedbackApi'
+import { useI18n } from '../i18n'
+
+const { t, locale } = useI18n()
 
 const password = ref('')
 const isAuthenticated = ref(false)
@@ -148,7 +151,7 @@ const login = async () => {
     sessionStorage.setItem('admin_auth', password.value)
     loadFeedbacks()
   } catch (err) {
-    loginError.value = 'Неверный пароль'
+    loginError.value = t.value.admin.login.error
   } finally {
     isLoading.value = false
   }
@@ -204,12 +207,17 @@ const getTypeIcon = (type) => {
 }
 
 const getTypeLabel = (type) => {
-  const labels = { bug: 'Баг', suggestion: 'Предложение', review: 'Отзыв' }
+  const labels = {
+    bug: t.value.feedback.types.bug,
+    suggestion: t.value.feedback.types.suggestion,
+    review: t.value.feedback.types.review
+  }
   return labels[type] || type
 }
 
 const formatDate = (timestamp) => {
-  return new Date(timestamp).toLocaleString('ru-RU', {
+  const loc = locale.value === 'ru' ? 'ru-RU' : 'en-US'
+  return new Date(timestamp).toLocaleString(loc, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
